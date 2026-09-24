@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use this dataset or code, please cite the accompanying paper."
+title: "Quantum Sensor-aligned Telemetry Dataset (QSTD)"
+abstract: >-
+  1.56M quantum circuit executions on two 20-qubit computers at the Leibniz
+  Supercomputing Centre. Each execution carries how well it ran, the circuit it
+  ran, the facility sensor readings from the minutes before it finished, and the
+  device's most recent calibration.
+version: "1.0"
+license: Apache-2.0
+type: software
+authors:
+  - family-names: Gambo
+    given-names: "Yaknan John"
+    orcid: "https://orcid.org/0000-0001-9198-2406"
+    affiliation: "Leibniz Supercomputing Centre (LRZ) / Technical University of Munich (TUM)"
+    email: yaknan.gambo@lrz.de
+  - family-names: Deng
+    given-names: Xiaolong
+    orcid: "https://orcid.org/0000-0001-6823-4979"
+    affiliation: "Leibniz Supercomputing Centre (LRZ)"
+  - family-names: Huber
+    given-names: Stefan
+    orcid: "https://orcid.org/0000-0002-0564-5436"
+    affiliation: "Leibniz Supercomputing Centre (LRZ)"
+  - family-names: Iapichino
+    given-names: Luigi
+    orcid: "https://orcid.org/0000-0003-3938-8973"
+    affiliation: "Leibniz Supercomputing Centre (LRZ)"
+  - family-names: Farooqi
+    given-names: "Muhammad Nufail"
+    orcid: "https://orcid.org/0000-0002-1609-5847"
+    affiliation: "Leibniz Supercomputing Centre (LRZ)"
+  - family-names: Echavarria
+    given-names: Jorge
+    orcid: "https://orcid.org/0000-0002-3751-5273"
+    affiliation: "Munich Quantum Valley (MQV)"
+  - family-names: Schulz
+    given-names: Martin
+    orcid: "https://orcid.org/0000-0001-9013-435X"
+    affiliation: "Technical University of Munich (TUM)"
+  - family-names: Schulz
+    given-names: Laura
+    orcid: "https://orcid.org/0000-0002-4702-3440"
+    affiliation: "Argonne National Laboratory"

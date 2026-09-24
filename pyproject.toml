@@ -1,0 +1,45 @@
+[project]
+name = "qstd-pipeline"
+version = "1.0.0"
+description = "Build and analysis pipeline for the Quantum Sensor-aligned Telemetry Dataset (QSTD)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Yaknan John Gambo", email = "yaknan.gambo@lrz.de" },
+    { name = "Xiaolong Deng", email = "xiaolong.deng@lrz.de" },
+    { name = "Stefan Huber", email = "stefan.huber@lrz.de" },
+    { name = "Luigi Iapichino", email = "luigi.iapichino@lrz.de" },
+    { name = "Muhammad Nufail Farooqi", email = "muhammad.farooqi@lrz.de" },
+    { name = "Jorge Echavarria", email = "jorge.echavarria@munich-quantum-valley.de" },
+    { name = "Martin Schulz", email = "schulzm@in.tum.de" },
+    { name = "Laura Schulz", email = "schulz@anl.gov" },
+]
+dependencies = [
+    "lightgbm>=4.6.0",
+    "matplotlib>=3.10.8",
+    "numpy>=2.2.6",
+    "pandas>=2.3.3",
+    "pyarrow>=24.0.0",
+    "scikit-learn>=1.7.2",
+    "shap>=0.49.1",
+    "torch>=2.11.0",
+]
+
+[project.optional-dependencies]
+# Only needed for the analysis notebook and the coverage figures.
+notebook = [
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "jupyter>=1.1.1",
+    "seaborn>=0.13.2",
+]
+# Only needed to rebuild the dataset from raw job records, not to reproduce results.
+build = [
+    "qiskit>=2.3.1",
+    "qiskit-aer>=0.17.2",
+    "qiskit-qasm3-import==0.6.0",
+]
+
+[tool.uv]
+package = false
