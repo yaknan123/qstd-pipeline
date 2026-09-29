@@ -19,6 +19,10 @@ authors:
     given-names: Xiaolong
     orcid: "https://orcid.org/0000-0001-6823-4979"
     affiliation: "Leibniz Supercomputing Centre (LRZ)"
+  - family-names: Ahmed
+    given-names: Hossam
+    orcid: "https://orcid.org/0009-0000-2498-1198"
+    affiliation: "Leibniz Supercomputing Centre (LRZ)"
   - family-names: Huber
     given-names: Stefan
     orcid: "https://orcid.org/0000-0002-0564-5436"

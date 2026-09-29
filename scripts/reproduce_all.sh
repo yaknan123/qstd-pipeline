@@ -69,15 +69,20 @@ step "Table X — forward-in-time split"
 "${RUN[@]}" experiments/forward_split.py --pools A B AVAIL \
     | tee "$MQSS_RESULTS_DIR/forward_split.log"
 
-step "Table VII — sensor alignment window ablation"
+# Not one of the paper's tables. The alignment window was checked at 2, 5, 10 and
+# 20 minutes and makes a negligible difference (at most +0.0012 R² against a
+# baseline of 0.91), so only the 5-minute build is published and the finding is a
+# methods statement rather than a table. The script runs only if you have built
+# the other windows yourself.
+step "Alignment window check (not a paper table)"
 WINDOWS=(--window "5=$DATA")
 for W in 02 10 20; do
     F="data/windows/window_$W.parquet"
     [[ -f "$F" ]] && WINDOWS+=(--window "$((10#$W))=$F")
 done
 if [[ ${#WINDOWS[@]} -eq 2 ]]; then
-    echo "   only the 5-minute dataset is present; the other windows are separate"
-    echo "   builds — see data/README.md. Skipping."
+    echo "   only the 5-minute build is published, so there is nothing to compare"
+    echo "   against — skipping. This is expected; see data/README.md."
 else
     "${RUN[@]}" experiments/window_ablation.py "${WINDOWS[@]}" \
         | tee "$MQSS_RESULTS_DIR/window_ablation.log"

@@ -24,6 +24,13 @@ release/make_code_package.py
 release/common.py
 release/validate.py
 release/column_inventory*
+# The same files can arrive at the repository root from a careless copy,
+# so block them there too. The column mapping is the one that matters:
+# it maps every published name back to the platform's internal path.
+/column_names.py
+/release_column_names.csv
+/column_inventory*
+/*.salt.json
 extraction/
 pipeline/extend_dataset.*
 pipeline/run_pipeline.sh

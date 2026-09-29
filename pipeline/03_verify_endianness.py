@@ -554,9 +554,10 @@ def _resolve_mode(
 
     With `assume_mode` set, that mode is used for every row and the detector's
     verdict is recorded but not acted on. This is the correct setting whenever
-    the platform's bit order is known: the devices in this dataset were confirmed
+    the platform's bit order is known: every backend on the platform was confirmed
     on hardware (2026-09-24) to return Qiskit's little-endian convention, bit n-1
-    leftmost and bit 0 rightmost, so the mode is `normal` and detection can only
+    leftmost and bit 0 rightmost — the same convention Aer uses, so no alignment
+    is ever needed. The mode is therefore `normal`, and detection can only
     do harm. It does: on low-fidelity circuits the measured distribution is close
     to noise, the two alignments land within a hair of each other, and an epsilon
     of 0.001 is tight enough that one wins "confidently" by chance. On a 10,000
@@ -1072,8 +1073,9 @@ def main() -> None:
         default=None,
         help="Align every row with this bit order and ignore the detector's "
              "verdict (still recorded in *_best_endianness_raw). Use it whenever "
-             "the platform's convention is known: these devices were confirmed on "
-             "hardware to use Qiskit little-endian, so --assume-mode normal is "
+             "the platform's convention is known: every backend was confirmed on "
+             "hardware to use Qiskit little-endian, matching Aer, so "
+             "--assume-mode normal is "
              "correct. Leaving it unset re-enables per-row detection, which "
              "mislabels ~10%% of rows on low-fidelity circuits.",
     )

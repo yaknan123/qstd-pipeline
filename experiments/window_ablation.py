@@ -75,7 +75,27 @@ def tier_for(device: str) -> str:
     return "Tier 2b" if device == C.QEXA else "Tier 2a"
 
 
-def run_one(device, dataset, limit, run_cv, tier3_cache, pool=None):
+def common_sensor_columns(datasets):
+    """Sensor and calibration columns present in EVERY window's dataset, per device.
+
+    A window ablation is only interpretable if the feature set is held fixed and
+    the window is the one thing that varies. It is not fixed by default: a sparse
+    channel can fall below stage 10's coverage threshold in a narrow window and
+    clear it in a wide one, so the wide-window model gets a feature the narrow one
+    never had. On the 2026-09-22 build that happened to one dust channel, giving
+    window_02 310 columns against 314 for 10 and 20 minutes. Intersecting here
+    removes that confound.
+    """
+    per_device = {}
+    for dataset in datasets:
+        sensor_cols, calib_cols = C.resolve_device_columns(C.dataset_columns(dataset))
+        for device in C.PAPER_DEVICES:
+            have = set(sensor_cols.get(device, [])) | set(calib_cols.get(device, []))
+            per_device[device] = have if device not in per_device else per_device[device] & have
+    return per_device
+
+
+def run_one(device, dataset, limit, run_cv, tier3_cache, pool=None, allowed=None):
     """Train this device's Tier 2 on one window's dataset.
 
     Tier 3 is cached per device: it uses no sensor features, so re-fitting it
@@ -86,6 +106,13 @@ def run_one(device, dataset, limit, run_cv, tier3_cache, pool=None):
     sensor_cols, calib_cols = C.resolve_device_columns(columns)
     sensors = sensor_cols.get(device, [])
     calib = calib_cols.get(device, [])
+    if allowed is not None:
+        dropped = [c for c in sensors + calib if c not in allowed]
+        sensors = [c for c in sensors if c in allowed]
+        calib = [c for c in calib if c in allowed]
+        if dropped:
+            print(f"    {label}: {len(dropped)} column(s) not present in every "
+                  f"window, excluded for comparability")
     features = list(C.CIRCUIT_FEATURES) + sensors + calib
     C.assert_no_cross_device_leakage(device, features, sensor_cols, calib_cols)
 
@@ -147,6 +174,11 @@ def main() -> int:
     parser.add_argument("--pool", choices=C.POOL_CHOICES, default=C.DEFAULT_POOL,
                         action=C.PoolAction,
                         help="Month pool (see common.MONTH_POOLS) or AVAIL; default A")
+    parser.add_argument("--no-common-features", action="store_true",
+                        help="Let each window use whatever sensor columns its own "
+                             "build kept. Off by default: the windows then differ "
+                             "in their feature set as well as their window, and "
+                             "the ablation measures both at once.")
     args = parser.parse_args()
 
     C.set_all_seeds()
@@ -167,6 +199,16 @@ def main() -> int:
         print(f"  PENDING: no dataset supplied for window(s) {missing} minutes. "
               f"The Table VII row(s) will be incomplete.")
 
+    allowed = None
+    if not args.no_common_features:
+        present = [d for d in windows.values() if d.exists()]
+        if len(present) > 1:
+            allowed = common_sensor_columns(present)
+            for device in C.PAPER_DEVICES:
+                print(f"  {C.DEVICE_DISPLAY.get(device, device)}: "
+                      f"{len(allowed.get(device, set()))} sensor/calibration columns "
+                      f"common to all {len(present)} windows")
+
     rows = []
     results = []
     tier3_cache: dict[str, C.RegressionMetrics] = {}
@@ -181,7 +223,8 @@ def main() -> int:
         C.warn_if_alignment_stale(C.dataset_columns(dataset))
 
         for device in C.PAPER_DEVICES:
-            result = run_one(device, dataset, args.limit, run_cv, tier3_cache, args.pool)
+            result = run_one(device, dataset, args.limit, run_cv, tier3_cache,
+                             args.pool, allowed.get(device) if allowed else None)
             if not result:
                 continue
             result["window_min"] = minutes

@@ -8,6 +8,7 @@ license = { text = "Apache-2.0" }
 authors = [
     { name = "Yaknan John Gambo", email = "yaknan.gambo@lrz.de" },
     { name = "Xiaolong Deng", email = "xiaolong.deng@lrz.de" },
+    { name = "Hossam Ahmed", email = "hossam.ahmed@lrz.de" },
     { name = "Stefan Huber", email = "stefan.huber@lrz.de" },
     { name = "Luigi Iapichino", email = "luigi.iapichino@lrz.de" },
     { name = "Muhammad Nufail Farooqi", email = "muhammad.farooqi@lrz.de" },
