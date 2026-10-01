@@ -127,6 +127,39 @@ About two hours on 8 cores, CPU only — no GPU, no database, no cluster access.
 | Table X — forward-in-time split | `experiments/forward_split.py` | `task10_forward_split.csv` |
 | Analysis sets side by side | `experiments/compare_pools.py` | `pool_comparison.csv` |
 
+### The paper's figures
+
+```bash
+uv run python analysis/make_paper_figures.py            # all of them
+uv run python analysis/make_paper_figures.py --fast     # only the ones that need no model
+uv run python analysis/make_paper_figures.py --list     # what each name draws
+```
+
+Writes PNG and PDF into `analysis/paper_figures/`, with the CSV behind each
+figure beside it. Eight figures come straight from the data and take about two
+minutes together; four train a model first — the Tier 1 and Tier 2 SHAP panels,
+the model comparison and the confusion matrices — and take a few minutes each,
+so `--fast` leaves them out.
+
+| Paper | Figure name | Needs a model |
+|---|---|---|
+| H_logical vs H_native, per device | `plot1` | no |
+| 2-qubit gate count, logical vs native | `plot2` | no |
+| H_native vs 2-qubit gate count | `plot3` | no |
+| Sensor categories vs fidelity | `plot5E` | no |
+| H_native per device (violin) | `plot7a` | no |
+| Daily fidelity and mixing-chamber temperature | `plot7b` | no |
+| H_native over gate count x depth | `plot8` | no |
+| Top correlations with H_native | `plot9` | no |
+| Tier 1 SHAP: bar, beeswarm, top-10, gain-vs-SHAP | `tier1_shap` | yes |
+| Tier 2 SHAP per device, calibration separately | `tier2_shap` | yes |
+| Model comparison and confusion matrices | `models` | yes |
+| ΔR² over the nine configurations | `forest` | reads `experiments/results/` |
+
+`analysis/qstd_overview.ipynb` section 8 draws the eight data-derived figures
+inline by calling this same script, so the notebook and the paper cannot drift
+apart.
+
 Three scripts are not in the driver, because they answer a question rather than
 fill a table: `experiments/nn_devemb.py` is the Tier 1 neural baseline and prints
 its scores, `analysis/data_availability_report.py` regenerates the sensor and
@@ -159,13 +192,15 @@ against the published dataset the script reports the 5-minute column alone. See
 experiments/   the models and evaluations behind every table
 pipeline/      stages 00-10: raw job records -> the training dataset
 release/       the validator that checks a built release
-analysis/      qstd_overview.ipynb, a short tour of the data; coverage figures
+analysis/      qstd_overview.ipynb, a tour of the data; make_paper_figures.py
 scripts/       reproduce_all.sh and check_results.py
 data/          where the dataset goes (not committed)
 ```
 
 **Reproducible from the published dataset:** everything in `experiments/`,
-`analysis/qstd_overview.ipynb` and `analysis/data_availability_report.py`.
+`analysis/qstd_overview.ipynb`, `analysis/make_paper_figures.py` and
+`analysis/data_availability_report.py`. Every table and every figure in the paper
+comes from the released parquet alone.
 
 **Included to be read, not run:** `pipeline/` documents how the dataset was
 produced from raw job records. It needs the job database, which is not public. It
