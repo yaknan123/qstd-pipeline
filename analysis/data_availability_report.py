@@ -11,7 +11,7 @@ OUTPUTS (analysis/figures/ unless --outdir)
   data_availability.png/.pdf      per month, the share of each device's jobs that
                                   carry sensors and fresh calibration, sensors
                                   only, calibration only, or neither; and the
-                                  share of the superconducting device calibration that is stale
+                                  share of Q-Exa calibration that is stale
   calibration_onset.png/.pdf      circuit jobs per month vs calibration channels
                                   returning data (the calibration twin of
                                   sensor_onset)
@@ -73,10 +73,10 @@ import column_names as N  # noqa: E402  (release names label every channel)
 import common as C  # noqa: E402
 
 # Same reference palette as the sensor figures. Device identity keeps slots 1/2
-# (the superconducting device blue, the trapped-ion device orange) in the onset figure; the row-state figure encodes
+# (Q-Exa blue, Marmot orange) in the onset figure; the row-state figure encodes
 # state, not device, with slots 1-3 in fixed order plus a neutral for "neither".
 SERIES = {C.QEXA: "#2a78d6", C.MARMOT: "#eb6834"}
-LABEL = {C.QEXA: "the superconducting device", C.MARMOT: "the trapped-ion device"}
+LABEL = {C.QEXA: "Q-Exa", C.MARMOT: "Marmot"}
 INK, INK_2, INK_MUTED = "#0b0b0b", "#52514e", "#8a8983"
 SURFACE, GRID = "#fcfcfb", "#e5e4df"
 STATES = [  # (key, legend label, colour)
@@ -172,7 +172,7 @@ def row_states(stage10: Path) -> pd.DataFrame:
     out["state"] = np.select(
         [out.has_sensor & fresh, out.has_sensor, fresh],
         ["both", "sensor_only", "calib_only"], "neither")
-    # Pool AVAIL: the trapped-ion device has no calibration, so sensors alone qualify it.
+    # Pool AVAIL: Marmot has no calibration, so sensors alone qualify it.
     no_calib_dev = out.device.map(lambda d: not calib.get(d))
     out["in_avail"] = (out.state == "both") | (no_calib_dev & out.has_sensor)
     for pool in C.MONTH_POOLS:
@@ -328,7 +328,7 @@ def fig_availability(rows: pd.DataFrame, outdir: Path):
     ax.set_ylim(0, max(0.5, float(stale.max() or 0) * 1.3))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
     ax.yaxis.set_major_locator(MaxNLocator(nbins=3))
-    ax.set_title(f"the superconducting device: calibration older than {C.CALIB_MAX_AGE_H:.0f} h, share of jobs "
+    ax.set_title(f"Q-Exa: calibration older than {C.CALIB_MAX_AGE_H:.0f} h, share of jobs "
                  f"with calibration (label = median age)", loc="left", fontsize=9.3,
                  color=INK, pad=5)
     month_ticks(ax, months)
@@ -382,7 +382,7 @@ def fig_calibration_onset(rows: pd.DataFrame, cal_cov: pd.DataFrame, status: dic
         cnt = series.value_counts()
         cum = np.cumsum([int(cnt.get(m, 0)) for m in months])
         ax_c.step(x, cum, where="post", color=SERIES[C.QEXA], lw=2.0, ls=ls, zorder=3)
-        ax_c.annotate(f"the superconducting device, {lab}  {cum[-1]}", (x[-1], cum[-1]), textcoords="offset points",
+        ax_c.annotate(f"Q-Exa, {lab}  {cum[-1]}", (x[-1], cum[-1]), textcoords="offset points",
                       xytext=(-4, 5), ha="right", fontsize=7.8, color=INK_2, zorder=5)
     style(ax_c)
     ax_c.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=4))
@@ -401,14 +401,14 @@ def fig_calibration_onset(rows: pd.DataFrame, cal_cov: pd.DataFrame, status: dic
         for ax in (ax_j, ax_c):
             ax.axvline(idx[wave] - 0.5, color=INK_MUTED, lw=1.0, ls=(0, (3, 3)), zorder=2)
         wave_note = (f"Dashed line: first calibration wave ({wave}); "
-                     f"{100 * (q.month < wave).mean():.1f}% of the superconducting device jobs ran before it.  ")
+                     f"{100 * (q.month < wave).mean():.1f}% of Q-Exa jobs ran before it.  ")
     month_ticks(ax_c, months)
 
     never = sorted(m for m, s in status.items() if s == "never published")
     fig.suptitle("Calibration covers most of the circuit record", x=0.012, ha="left",
                  fontsize=11.5, color=INK, y=0.985)
     fig.text(0.012, 0.935,
-             wave_note + f"the trapped-ion device publishes no calibration.\nSuperconducting: {n_use} usable of "
+             wave_note + f"Marmot publishes no calibration.\nSuperconducting: {n_use} usable of "
              f"{n_all} channels; never published: {', '.join(never) or 'none'}.",
              va="top",
              ha="left", fontsize=7.4, color=INK_2)
@@ -474,7 +474,7 @@ def fig_calibration_timeline(cal_cov: pd.DataFrame, status: dict, jobs: pd.Serie
     fig.suptitle("Calibration availability per metric, qubit and coupler", x=0.012,
                  ha="left", fontsize=11.5, color=INK, y=1 - 0.2 / H)
     fig.text(0.012, 1 - 0.46 / H,
-             "the superconducting device. Rows = qubits q01-q20 or coupler pairs; shade = share of that month's "
+             "Q-Exa. Rows = qubits q01-q20 or coupler pairs; shade = share of that month's "
              "jobs with a value (any age).\nBlue = released as sc_cal_q<NN>_<metric>; grey = "
              "not released (unusable or never published); light grey cell = no jobs.",
              ha="left", fontsize=7.2, color=INK_2, va="top")
@@ -512,7 +512,7 @@ def avail_selection(rows: pd.DataFrame) -> pd.DataFrame:
             steps.append((f"Calibration no older than {C.CALIB_MAX_AGE_H:.0f} h", k,
                           "calibration stale (days to weeks old)"))
         else:
-            steps.append(("Calibration: not required (the trapped-ion device publishes none)", k, ""))
+            steps.append(("Calibration: not required (Marmot publishes none)", k, ""))
         if k.sum() != r.in_avail.sum():
             raise AssertionError(f"{d}: selection {k.sum()} != AVAIL {r.in_avail.sum()}")
         steps.append(("= pool AVAIL", k, ""))
@@ -537,16 +537,16 @@ SET_DEFINITIONS = [
      "Every job of the device, whatever data it carries.",
      "Circuit-only models: Tier 1, LODO, shot histogram"),
     ("A (default)",
-     "Whole months in which sensors were logging. the superconducting device: 2025-04 onward without the "
-     "2025-09 sensor outage. the trapped-ion device: 2025-03 onward.",
+     "Whole months in which sensors were logging. Q-Exa: 2025-04 onward without the "
+     "2025-09 sensor outage. Marmot: 2025-03 onward.",
      "Tier 2a/2b and matched Tier 3; Tasks 5, 7, 8. Results in experiments/results/"),
     ("B",
-     "Pool A without the superconducting device 2025-04 and 2025-05, when calibration was barely published. "
-     "the trapped-ion device as in A.",
+     "Pool A without Q-Exa 2025-04 and 2025-05, when calibration was barely published. "
+     "Marmot as in A.",
      "Robustness check (--pool B)"),
     ("AVAIL",
-     "Individual jobs that carry the device's own data. the superconducting device: at least one sensor reading "
-     f"and calibration no older than {C.CALIB_MAX_AGE_H:.0f} h. the trapped-ion device: at least one sensor "
+     "Individual jobs that carry the device's own data. Q-Exa: at least one sensor reading "
+     f"and calibration no older than {C.CALIB_MAX_AGE_H:.0f} h. Marmot: at least one sensor "
      "reading. Chosen once on the 5-minute dataset, so every window uses the same rows.",
      "Same experiments as A (--pool AVAIL). Results in experiments/results/pool_AVAIL/"),
 ]
@@ -657,8 +657,8 @@ def fig_sensor_onset(rows, sens_cov, outdir: Path):
     if wave in idx:
         for ax in (ax_j, ax_c):
             ax.axvline(idx[wave] - 0.5, color=INK_MUTED, lw=1.0, ls=(0, (3, 3)), zorder=2)
-        wave_note = (f"Dashed line: the superconducting device's first sensor wave ({wave}); "
-                     f"{100 * (q.month < wave).mean():.0f}% of the superconducting device jobs ran before it.  ")
+        wave_note = (f"Dashed line: Q-Exa's first sensor wave ({wave}); "
+                     f"{100 * (q.month < wave).mean():.0f}% of Q-Exa jobs ran before it.  ")
     month_ticks(ax_c, months)
     fig.suptitle("The circuit record predates the telemetry record", x=0.012, ha="left",
                  fontsize=11.5, color=INK, y=0.985)

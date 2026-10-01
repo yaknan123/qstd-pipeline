@@ -12,8 +12,8 @@ For each lookback window length w in {2, 5, 10, 20} minutes:
 
   1. Re-run the the monitoring system join with a lookback window of length w      <- prepare_windows.sh
   2. Re-aggregate sensor features (mean, min, max, sd)            <- same script
-  3. Retrain the superconducting device Tier 2b  (LightGBM)                            <- this script
-  4. Retrain the trapped-ion device Tier 2a (LightGBM)                            <- this script
+  3. Retrain Q-Exa Tier 2b  (LightGBM)                            <- this script
+  4. Retrain Marmot Tier 2a (LightGBM)                            <- this script
 
 Eight training runs total, plus Tier 3 once per device. Tier 3 uses no sensor
 features, so it is invariant across windows: it is trained a single time per

@@ -17,11 +17,11 @@ it finished.
 
 | | |
 |---|---|
-| Records | 1,555,121 — one per executed circuit |
-| Jobs | 214,517 — a job is one submission of one or more circuits |
+| Records | 1,549,234 — one per executed circuit |
+| Jobs | 211,980 — a job is one submission of one or more circuits |
 | Period | 2024-05-24 to 2026-05-10 (UTC) |
 | Columns | 313: 182 sensor, 100 calibration, 20 circuit, 3 job, 3 time, 3 identifier, 2 target |
-| Devices | `superconducting_20q` (1,372,537 records), `trapped_ion_20q` (176,697), three other backends (5,887) |
+| Devices | **Q-Exa**, superconducting, `superconducting_20q` (1,372,537 records); **Marmot**, trapped ion, `trapped_ion_20q` (176,697) |
 | File | `qstd_v1.0.parquet`, 57 MB on disk, about 4 GB as a pandas frame |
 
 **The target is `hellinger_native`**: the Hellinger distance between the measured
@@ -80,8 +80,31 @@ uv run python -c "import lightgbm, pandas, pyarrow; print('ready')"
 ls data/qstd_v1.0.parquet
 ```
 
-Every command below goes through `uv run`, which uses the locked environment
-without you activating anything.
+### Running things
+
+Every command in this README goes through `uv run`, which uses the locked
+environment without you activating anything:
+
+```bash
+uv run python experiments/train_tiers.py
+```
+
+**If you would rather activate the environment** and use a plain `python`, `uv
+sync` has already created it at `.venv/`:
+
+```bash
+source .venv/bin/activate          # macOS / Linux (bash, zsh)
+source .venv/bin/activate.fish     # fish
+.venv\Scripts\activate             # Windows
+
+python experiments/train_tiers.py  # no `uv run` prefix once activated
+deactivate                         # when you are done
+```
+
+Both do the same thing. `uv run` is safer in scripts because it cannot pick up
+the wrong interpreter; activation is more comfortable in an interactive session
+or a notebook. If you point an IDE at the project, select `.venv/bin/python` as
+the interpreter.
 
 ---
 

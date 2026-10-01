@@ -1,12 +1,19 @@
 # Dataset
 
-The dataset is not in this repository. Download `qstd_v1.0.parquet` (57 MB) from
-the LRZ FAIR Data Portal (https://rdm.lab.lrz.de/) and put it here. The code
-reads it directly — there is no conversion step.
+The dataset is not in this repository. Download `qstd_v1.0.parquet` (55 MB) from
+the LRZ FAIR Data Portal (https://rdm.lab.lrz.de/) and put it here:
 
     ls data/qstd_v1.0.parquet
 
-Both the parquet and anything derived from it are gitignored.
+**The code reads it directly — there is no conversion step.** `experiments/
+common.py` detects the published schema and maps the release column names
+itself, so every script here runs against the file exactly as downloaded.
+
+The portal also offers `qstd_v1.0.sqlite`, the same table as a SQLite database
+for reading without pandas or pyarrow. The experiments use the Parquet; the
+SQLite is there for exploration.
+
+Both, and anything derived from them, are gitignored.
 
 ## Alignment windows
 

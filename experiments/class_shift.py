@@ -9,7 +9,7 @@ Section VI.
 
 WHAT IT DOES
 ------------
-For every the superconducting device holdout circuit, predicts fidelity twice:
+For every Q-Exa holdout circuit, predicts fidelity twice:
 
   Tier 3   circuit features only          (21 features)
   Tier 2b  circuit + sensor + calibration (the full per-device model)
@@ -40,7 +40,7 @@ be read as "Tier 2b corrects Tier 3" rather than merely "Tier 2b disagrees".
 USAGE
 -----
     python experiments/class_shift.py
-    python experiments/class_shift.py --device trapped_ion_20q    # the trapped-ion device (sensors only)
+    python experiments/class_shift.py --device trapped_ion_20q    # Marmot (sensors only)
 """
 
 from __future__ import annotations

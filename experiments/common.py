@@ -53,7 +53,7 @@ justify four features each.
 
 `value` must stay in `SENSOR_FEATURE_SUFFIXES`: without it these columns are
 extracted, stored, and then silently skipped by `resolve_device_columns()`,
-which on the 2026-09-20 config would drop 54 of the trapped-ion device's 73 channels with no
+which on the 2026-09-20 config would drop 54 of Marmot's 73 channels with no
 error. Adding it cannot double-count, because the extractor emits only one form
 per channel and the lookup is by exact column name.
 
@@ -92,9 +92,37 @@ RESULTS_DIR = Path(
 )
 BASE_RESULTS_DIR = RESULTS_DIR   # RESULTS_DIR moves to pool_<name>/ for non-default pools
 
-# Stage 10 output: cancelled jobs removed, non-features dropped, numeric
-# columns typed as float64. See pipeline/10_clean_dataset.py.
-DEFAULT_DATASET = DATA_DIR / "stage10_cleaned_final_dataset.parquet"
+# The dataset, under whichever name is present.
+#
+# Two names are in play and both are correct in their own context. Inside the
+# build repository it is stage 10's output; a reader who downloaded the release
+# has `qstd_v1.0.parquet`, because that is what the portal serves and what the
+# README tells them to put in data/. Hard-coding either one strands the other,
+# which is exactly what happened: the package shipped looking for the internal
+# name while its own README asked for the published one.
+#
+# The published file is preferred when both exist, so a reader who also has a
+# build tree gets the release they downloaded rather than a local artefact.
+DATASET_CANDIDATES = (
+    "qstd_v1.0.parquet",                    # the published release
+    "qstd.parquet",                         # a renamed copy
+    "stage10_cleaned_final_dataset.parquet",  # pipeline/10_clean_dataset.py output
+)
+
+
+def _resolve_dataset() -> Path:
+    override = os.environ.get("QSTD_DATASET")
+    if override:
+        return Path(override).expanduser()
+    for name in DATASET_CANDIDATES:
+        if (DATA_DIR / name).exists():
+            return DATA_DIR / name
+    # Nothing present: name the published file, so the error a reader sees names
+    # the file they were told to download.
+    return DATA_DIR / DATASET_CANDIDATES[0]
+
+
+DEFAULT_DATASET = _resolve_dataset()
 SENSOR_MANIFEST = DATA_DIR / "sensors_by_system.json"
 
 # The calibration manifest has shipped under two different names across
@@ -170,18 +198,18 @@ PAPER_DEVICES = (SC, ION)
 # ---------------------------------------------------------------------------
 # Month pools for sensor/calibration tiers
 # ---------------------------------------------------------------------------
-# Sensor and calibration coverage depends on the month: the superconducting device sensors were not
-# logged before 2025-03 and had an outage in 2025-09; the superconducting device calibration was
-# barely published in 2025-04/05; the trapped-ion device sensors start in 2025-03. Training a
-# sensor tier on every month makes most sensor cells empty (8.7% of the superconducting device
+# Sensor and calibration coverage depends on the month: Q-Exa sensors were not
+# logged before 2025-03 and had an outage in 2025-09; Q-Exa calibration was
+# barely published in 2025-04/05; Marmot sensors start in 2025-03. Training a
+# sensor tier on every month makes most sensor cells empty (8.7% of Q-Exa
 # records carry sensor data overall, so the 10% coverage filter removes every
-# the superconducting device sensor feature) and lets missingness stand in for time. Tier 2 and its
+# Q-Exa sensor feature) and lets missingness stand in for time. Tier 2 and its
 # matched Tier 3 therefore train on a month pool. Circuit-only models (Tier 1,
 # LODO, shot histogram) use every month.
 #
-#   A  the superconducting device 2025-04 onward without 2025-09     sensors ~85%, calibration ~70%
+#   A  Q-Exa 2025-04 onward without 2025-09     sensors ~85%, calibration ~70%
 #   B  A without 2025-04 and 2025-05            sensors ~85%, calibration ~97%
-#   the trapped-ion device uses 2025-03 onward in both pools.
+#   Marmot uses 2025-03 onward in both pools.
 TIME_COL = "completed_hour_utc" if PUBLIC_SCHEMA else "timestamp_completed_utc"
 MONTH_POOLS: dict[str, dict[str, object]] = {
     "A": {QEXA: lambda m: (m >= "2025-04") & (m != "2025-09"),
@@ -196,13 +224,13 @@ DEFAULT_POOL: str | None = "A"
 
 # Row pool AVAIL: "where the data exist". Instead of whole months it keeps each
 # row that carries the device's own data, whenever it ran:
-#   the superconducting device   >= 1 sensor reading AND >= 1 calibration value AND calibration no
+#   Q-Exa   >= 1 sensor reading AND >= 1 calibration value AND calibration no
 #           older than CALIB_MAX_AGE_H
-#   the trapped-ion device  >= 1 sensor reading (the trapped-ion device publishes no calibration)
+#   Marmot  >= 1 sensor reading (Marmot publishes no calibration)
 # The age check exists because the calibration extractor queries one series per
 # chunk of jobs and takes the latest sample at or before each job without
 # enforcing the per-row lookback, so in sparse months a job can inherit a value
-# weeks old (22,853 the superconducting device rows > 48 h; 10,668 of the 93,600 rows that have both
+# weeks old (22,853 Q-Exa rows > 48 h; 10,668 of the 93,600 rows that have both
 # sensors and calibration). The age comes from calibration_sample_ts_utc, which
 # stage 10 drops, so it is read from stage 09 and joined on ROW_ID_COL. It is
 # the newest sample across metrics, so it bounds staleness from below only.

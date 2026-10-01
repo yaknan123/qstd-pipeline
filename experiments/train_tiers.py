@@ -10,9 +10,9 @@ TIERS
 -----
   Tier 1  global, device-agnostic, 22 features (21 circuit + device ID)
           LightGBM, Random Forest, NN+DevEmb
-  Tier 2b the superconducting device, per-device: circuit + sensor + calibration   LightGBM
-  Tier 2a the trapped-ion device, per-device: circuit + sensor                LightGBM
-          (the trapped-ion device has no calibration data)
+  Tier 2b Q-Exa, per-device: circuit + sensor + calibration   LightGBM
+  Tier 2a Marmot, per-device: circuit + sensor                LightGBM
+          (Marmot has no calibration data)
   Tier 3  per-device ablation: 21 circuit features only,      LightGBM
           trained on the same per-device pool as Tier 2
 
@@ -20,7 +20,7 @@ Every model reports R^2 on the 20% holdout, R^2 from 5-fold GroupKFold CV on
 the training set, MAE and RMSE. Tier 1 models additionally report three-class
 accuracy at H=0.3/0.6 and macro-F1.
 
-The the superconducting device sensor-only configuration (Tier 2a the superconducting device, Task 5) lives in
+The Q-Exa sensor-only configuration (Tier 2a Q-Exa, Task 5) lives in
 tier2a_sensor_only.py, which also computes the DeltaR^2 decomposition.
 
 USAGE

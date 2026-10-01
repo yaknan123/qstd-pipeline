@@ -19,7 +19,7 @@ the per-column reasoning is in analysis/column_decisions_20260920T231153Z.csv.
 WHAT THIS SCRIPT DOES
 ---------------------
 1. ROW FILTER: drops every job (parent_id) whose status is CANCELLED. On the
-   2026-09-20 rebuild that is 77 whole jobs / 3,321 circuits (3,310 on the trapped-ion device);
+   2026-09-20 rebuild that is 77 whole jobs / 3,321 circuits (3,310 on Marmot);
    no job mixes CANCELLED and COMPLETED circuits.
 2. RULE-BASED COLUMN FILTER: every input column must match exactly one rule in
    COLUMN_RULES below, or the script stops. A schema change upstream therefore
@@ -30,11 +30,11 @@ WHAT THIS SCRIPT DOES
    whole (all aggregates or none).
    The coverage rule was added on 2026-09-23 for the extension to 2026-05-10,
    which brought in the the superconducting device's room room channels: they published for one 2.5 h span on
-   2025-12-17 and cover 606 of 1,555,121 rows (0.04%). A channel that exists for
+   2025-12-17 and cover 606 of 1,549,234 released rows (0.04%). A channel that exists for
    one morning is a timestamp marker, not a measurement. The next-sparsest
    channel (the lab occupancy) covers 2.9%, so the 1% threshold is well clear.
    On the 2026-09-20 rebuild this removes the dead the superconducting device's room channels and the ten
-   the superconducting device heater/pump/pulsetube channels, which are on/off states that never
+   Q-Exa heater/pump/pulsetube channels, which are on/off states that never
    change. Identity columns and the target are exempt.
 4. TYPING: feature columns and the target become float64 (Hellinger distances
    off by rounding, e.g. 1 + 2e-16, are clipped to [0, 1]), the completion time

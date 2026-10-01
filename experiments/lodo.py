@@ -7,9 +7,9 @@ Task 6 — leave-one-device-out evaluation (PAPER_OBJECTIVES.md Section 3.4).
 
 WHAT IT TRAINS
 --------------
-  superconducting -> trapped ion : train Tier 1 LightGBM on the superconducting device circuits only (~1.28M rows),
-                    test on all the trapped-ion device circuits
-  trapped ion -> superconducting : train on the trapped-ion device only (~100K rows), test on all the superconducting device
+  Q-Exa -> Marmot : train Tier 1 LightGBM on Q-Exa circuits only (~1.28M rows),
+                    test on all Marmot circuits
+  Marmot -> Q-Exa : train on Marmot only (~100K rows), test on all Q-Exa
 
 Both use the 22 device-agnostic Tier 1 features (21 circuit + device ID) with
 the same hyperparameters and seed as the pooled Tier 1 model, and both are
@@ -22,7 +22,7 @@ is kept for comparability. It is constant within the training set and takes an
 unseen value at test time, which is exactly the transfer condition being
 measured: LightGBM never finds a useful split on a constant column, so the
 model is effectively forced to rely on circuit structure alone. The encoding is
-built from the pooled frame (not per-split) so that "the superconducting device" maps to the same
+built from the pooled frame (not per-split) so that "Q-Exa" maps to the same
 integer in both directions.
 
 READING THE RESULT

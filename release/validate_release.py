@@ -59,7 +59,10 @@ def main(folder: str) -> int:
 
     expected = {f"{stem}.parquet", f"{stem}_columns.csv", f"{stem}_manifest.json",
                 "README.md", "LICENSE.txt"}
-    present = {p.name for p in root.iterdir()}
+    # The SQLite edition is optional: the same table in another format, so a
+    # release is valid with or without it. Nothing else may appear here.
+    optional = {f"{stem}.sqlite", f"{stem}.sqlite.gz"}
+    present = {p.name for p in root.iterdir()} - optional
     if present != expected:
         fail(f"files: missing {sorted(expected - present)}, unexpected {sorted(present - expected)}")
         return report(fails, warns)

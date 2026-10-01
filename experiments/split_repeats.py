@@ -18,7 +18,7 @@ interval that contains zero says plainly that the effect is not resolved.
 
 It replaces single-split point estimates for:
   Table III  per-device Tier 2 vs Tier 3
-  Table V    the superconducting device feature-category decomposition (sensor, then calibration)
+  Table V    Q-Exa feature-category decomposition (sensor, then calibration)
   Table VII  the sensor alignment window ablation
 
 WHAT IT DOES NOT DO

@@ -3,13 +3,13 @@
 tier2a_sensor_only.py
 ==========================
 
-Task 5 — the superconducting device sensor-only configuration (PAPER_OBJECTIVES.md Section 3.3).
+Task 5 — Q-Exa sensor-only configuration (PAPER_OBJECTIVES.md Section 3.3).
 Reviewer 3 asked for this explicitly; it is the experiment that separates the
 sensor contribution from the calibration contribution.
 
 WHAT IT TRAINS
 --------------
-Three LightGBM models on the *identical* the superconducting device training pool and holdout:
+Three LightGBM models on the *identical* Q-Exa training pool and holdout:
 
   Tier 3   21 circuit features                      (no sensors, no calibration)
   Tier 2a  21 circuit + sensor features             (calibration withheld)
@@ -59,7 +59,7 @@ def main() -> int:
     parser.add_argument(
         "--device",
         default=C.QEXA,
-        help="Device to decompose (default the superconducting device; the trapped-ion device has no calibration)",
+        help="Device to decompose (default Q-Exa; Marmot has no calibration)",
     )
     parser.add_argument(
         "--shap-top",

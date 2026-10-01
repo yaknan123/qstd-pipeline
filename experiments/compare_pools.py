@@ -35,7 +35,7 @@ def pool_dir(pool: str) -> Path:
 
 
 def tier_rows(pool: str) -> list[dict]:
-    """One row per (device, model) from task3 and, for the superconducting device, task5."""
+    """One row per (device, model) from task3 and, for Q-Exa, task5."""
     d = pool_dir(pool)
     rows = []
     t3 = d / "task3_train_tiers.json"
@@ -53,11 +53,11 @@ def tier_rows(pool: str) -> list[dict]:
                 })
     t5 = d / "task5_sensor_only.json"
     if t5.exists():
-        # Only the sensor-only the superconducting device model is new here; its Tier 2b and Tier 3
+        # Only the sensor-only Q-Exa model is new here; its Tier 2b and Tier 3
         # rows duplicate task3 on the same split.
         m = json.loads(t5.read_text()).get("tier2a")
         if m:
-            rows.append({"pool": pool, "device": "the superconducting device", "model": "Tier 2a (sensor only)",
+            rows.append({"pool": pool, "device": "Q-Exa", "model": "Tier 2a (sensor only)",
                          "n_train": m["n_train"], "n_test": m["n_test"],
                          "n_features": m["n_features"],
                          "R2_holdout": m["r2_holdout"], "R2_cv": m["r2_cv_mean"],
