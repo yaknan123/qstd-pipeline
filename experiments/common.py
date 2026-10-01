@@ -1082,10 +1082,15 @@ def warn_if_alignment_stale(columns: Sequence[str]) -> None:
     """
     cols = list(columns)
     problems = []
-    if not any(c.startswith("timestamp_completed") for c in cols):
+    # Two names for the same anchor: the build repository calls it
+    # timestamp_completed_utc, the published release completed_hour_utc. Checking
+    # only the internal spelling told every reader of the published dataset that
+    # their data was "not publication-ready", which was both wrong and alarming.
+    if not any(c.startswith("timestamp_completed") or c.startswith("completed_hour")
+               for c in cols):
         problems.append(
-            "no timestamp_completed column -> built with the removed "
-            "timestamp_scheduled anchor (Section 2.1)"
+            "no completion-time anchor (timestamp_completed* or completed_hour*) "
+            "-> built with the removed timestamp_scheduled anchor (Section 2.1)"
         )
     if problems:
         print("\n  !! DATASET IS STALE RELATIVE TO PAPER_OBJECTIVES:")

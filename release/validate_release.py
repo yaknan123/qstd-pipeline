@@ -53,15 +53,23 @@ TIME = ("submitted_hour_utc", "scheduled_hour_utc", "completed_hour_utc")
 
 def main(folder: str) -> int:
     root = Path(folder)
-    stem = root.name
+    # Derive the stem from the parquet itself, not from the folder name: a
+    # downloader may rename the folder, and the upload staging copy is named
+    # after what it is for. The files inside carry the release's own name.
+    pqs = sorted(root.glob("*.parquet"))
+    if len(pqs) != 1:
+        return report([f"expected exactly one .parquet in {root}, found {len(pqs)}"], [])
+    stem = pqs[0].stem
     fails, warns = [], []
     fail = fails.append
 
     expected = {f"{stem}.parquet", f"{stem}_columns.csv", f"{stem}_manifest.json",
                 "README.md", "LICENSE.txt"}
-    # The SQLite edition is optional: the same table in another format, so a
-    # release is valid with or without it. Nothing else may appear here.
-    optional = {f"{stem}.sqlite", f"{stem}.sqlite.gz"}
+    # The SQLite edition, the portal record and a checksum file are all optional:
+    # the same table in another format, metadata, and an upload aid. Nothing else
+    # may appear here.
+    optional = {f"{stem}.sqlite", f"{stem}.sqlite.gz",
+                f"{stem}_lrz_fair_record.json", "SHA256SUMS.txt"}
     present = {p.name for p in root.iterdir()} - optional
     if present != expected:
         fail(f"files: missing {sorted(expected - present)}, unexpected {sorted(present - expected)}")
@@ -186,7 +194,9 @@ def main(folder: str) -> int:
         if df.loc[off, r.column].notna().any():
             fail(f"{r.column} ({r.device_scope}) has values on other devices' records")
 
-    record_path = root.parent / f"{stem}_lrz_fair_record.json"
+    record_path = root / f"{stem}_lrz_fair_record.json"
+    if not record_path.exists():
+        record_path = root.parent / f"{stem}_lrz_fair_record.json"
     if not record_path.exists():
         fail(f"portal record metadata missing: {record_path.name}")
         return report(fails, warns)
