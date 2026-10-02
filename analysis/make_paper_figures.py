@@ -418,6 +418,42 @@ def plot7a_violin(df) -> None:
     fig.tight_layout()
     save(fig, "plot7a_violin_Hnat_single_col")
 
+    # Full-width variant: the same distributions with the three fidelity regimes
+    # shaded behind them and the F_H = 1 - H axis on the right, for when the
+    # figure gets a whole column rather than half of one.
+    fig, ax = plt.subplots(figsize=(6.2, 5.6))
+    for lo, hi, face, line, text, tc in (
+            (0.0, H_GOOD_MAX, "#E8F5E9", "#2E7D32", "GOOD", "#1B5E20"),
+            (H_GOOD_MAX, H_POOR_MIN, "#FFF8E1", "#E65100", "MEDIUM", "#E65100"),
+            (H_POOR_MIN, 1.0, "#FDECEA", "#C62828", "POOR", "#B71C1C")):
+        ax.axhspan(lo, hi, facecolor=face, zorder=0)
+        if lo > 0:
+            ax.axhline(lo, color=line, ls="--", lw=1.1, alpha=0.8, zorder=1)
+        ax.text(len(devs) + 0.62, (lo + hi) / 2, text, fontsize=10,
+                color=tc, fontweight="bold", va="center", ha="center")
+    parts = ax.violinplot(data, showmedians=False, widths=0.75)
+    for body, d in zip(parts["bodies"], devs):
+        body.set_facecolor(COLOR[d])
+        body.set_alpha(1.0)
+        body.set_edgecolor("black")
+        body.set_linewidth(1.1)
+        body.set_zorder(3)
+    for key in ("cbars", "cmins", "cmaxes"):
+        if key in parts:
+            parts[key].set_alpha(0)
+    ax.set_xticks(range(1, len(devs) + 1))
+    ax.set_xticklabels([LABEL[d] for d in devs], fontsize=12)
+    ax.set_ylabel(r"$H$  (lower is better)", fontsize=11)
+    ax.set_ylim(0, 1)
+    ax.set_xlim(0.4, len(devs) + 0.85)
+    ax.grid(axis="y", alpha=0.25)
+    right = ax.twinx()
+    right.set_ylim(1, 0)
+    right.set_ylabel(r"$F_H$  (higher is better)", fontsize=11)
+    right.grid(False)
+    fig.tight_layout()
+    save(fig, "plot7a_violin_Hnat")
+
     # The class shares used to live in annotation boxes on top of the violins,
     # which crowded a single-column figure. They are a table instead.
     rows = []
